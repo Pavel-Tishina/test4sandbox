@@ -2,11 +2,7 @@ package com.itgnostic.test4sandbox.rest.api;
 
 import com.itgnostic.test4sandbox.errors.RestApiErrors;
 import com.itgnostic.test4sandbox.utils.RestApiUtils;
-import org.apache.tomcat.util.http.ResponseUtil;
-import org.h2.util.StringUtils;
-import org.springframework.boot.actuate.web.exchanges.HttpExchange;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
