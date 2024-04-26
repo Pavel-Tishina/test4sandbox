@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.itgnostic</groupId>
-	<artifactId>test4gamebox</artifactId>
+	<artifactId>test4sandbox</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>test4gamebox</name>
+	<name>test4sandbox</name>
 	<description>Test app for GAMEBOX</description>
 
 
@@ -48,6 +48,7 @@
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
+
 
 
 
