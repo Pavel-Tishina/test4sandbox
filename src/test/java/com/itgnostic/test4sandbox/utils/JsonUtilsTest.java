@@ -4,9 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
@@ -31,19 +33,4 @@ public class JsonUtilsTest {
 
         assertTrue(jsonObject.similar(JsonUtils.mapToJson(MAP)));
     }
-
-    /*
-    private boolean compareJSONArrays(JSONArray a1, JSONArray a2) {
-        if (a1 == null && a2 == null)
-            return true;
-        else if (Objects.isNull(a1) != Objects.isNull(a2))
-            return false;
-        else if (a1.similar())
-
-
-
-        return true;
-    }
-
-     */
 }

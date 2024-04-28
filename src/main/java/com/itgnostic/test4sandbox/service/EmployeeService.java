@@ -69,7 +69,7 @@ public class EmployeeService {
     public OperationResult get(long page, long lim) {
         OperationResult out = new OperationResult();
 
-        if (page < 1)
+        if (page < 0)
             out.addError(RestApiErrors.BAD_PARAM.getErrorText().formatted("page", page));
 
         if (lim < 1)
@@ -103,14 +103,18 @@ public class EmployeeService {
 
     public OperationResult del(EmployeeEntity e) {
         OperationResult out = new OperationResult();
-
         if (e.getId() == null) {
             out.addError(ID_IS_NULL);
             return out;
         }
 
-        out.addResult(employeeDbService.del(e));
+        if (e.getSupervisor() != null)
+            addOrRemoveSubForSupervisor(e.getSupervisor(), e.getId(), true);
 
+        if (!e.getSubordinates().isEmpty())
+            addOrRemoveSupervisorFor(e.getId(), e.getSubordinates(), true);
+
+        out.addResult(employeeDbService.del(e));
         return out;
     }
 
@@ -261,6 +265,20 @@ public class EmployeeService {
             superVisor.setSubordinates(subs);
 
             employeeDbService.modify(superVisor);
+        }
+    }
+
+    private void addOrRemoveSupervisorFor(long supervisorId, Set<Long> subIds, boolean remove) {
+        for (Long subId : subIds) {
+            EmployeeEntity subE = employeeDbService.get(subId);
+            if (subE != null) {
+                if (remove && Objects.equals(subE.getSupervisor(), supervisorId))
+                    subE.setSupervisor(null);
+                else if (!remove && subE.getSupervisor() == null)
+                    subE.setSupervisor(supervisorId);
+
+                employeeDbService.modify(subE);
+            }
         }
     }
 

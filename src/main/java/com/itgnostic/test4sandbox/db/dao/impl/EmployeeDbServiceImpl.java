@@ -16,11 +16,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+
 public class EmployeeDbServiceImpl implements EmployeeDbService {
 
     @PersistenceContext
     private final Session session;
     private final String entityName = EmployeeEntity.class.getName();
+
+
 
     public EmployeeDbServiceImpl(Session session) {
         this.session = session;
@@ -70,6 +73,7 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
+    @Transactional
     public boolean modify(EmployeeEntity e) {
         if (!session.isOpen() || e == null || e.getId() == null)
             return false;
@@ -94,11 +98,16 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
             existed.setSubordinates(e.getSubordinates() == null
                     ? new HashSet<>() : e.getSubordinates());
 
-        session.saveOrUpdate(existed);
+        Transaction transaction = session.beginTransaction();
+
+        session.update(existed);
+        session.flush();
+        transaction.commit();
         return true;
     }
 
     @Override
+    @Transactional
     public Boolean del(EmployeeEntity e) {
         if (!session.isOpen())
             return false;
@@ -106,7 +115,11 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
         if (e.getId() == null)
             return null;
 
-        session.remove(e.getId());
+        Transaction transaction = session.beginTransaction();
+        session.remove(e);
+        session.flush();
+        transaction.commit();
+
         return true;
     }
 

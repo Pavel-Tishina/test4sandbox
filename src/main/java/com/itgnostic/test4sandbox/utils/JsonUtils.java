@@ -57,7 +57,7 @@ public class JsonUtils {
 
         if (operationResult.isSuccess()) {
             out.put("result", operationResult.getResultList().isEmpty()
-                    ? "success" : new JSONObject(operationResult.getResultsAsList()));
+                    ? "success" : new JSONArray(operationResult.getResultsAsList()));
 
             if (operationResult.hasErrors())
                 out.put("warning", operationResult.getErrorDetails());

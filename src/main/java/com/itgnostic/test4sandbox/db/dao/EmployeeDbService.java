@@ -1,12 +1,12 @@
 package com.itgnostic.test4sandbox.db.dao;
 
 import com.itgnostic.test4sandbox.db.entity.EmployeeEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
 
-@Service
+@Component
 public interface EmployeeDbService {
     Long add(EmployeeEntity e);
     EmployeeEntity get(long id);

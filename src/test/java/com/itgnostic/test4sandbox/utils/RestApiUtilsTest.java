@@ -39,11 +39,11 @@ public class RestApiUtilsTest {
 
     @Test
     public void getIntParamsAsArrayTest() {
-        int[] badValue = new int[0];
-        int[] oneValue = {5};
-        int[] lotValues = {5,6};
-        int[] lotValuesNotUniq1 = {5,5,5};
-        int[] lotValuesNotUniq2 = {5,6,5};
+        long[] badValue = new long[0];
+        long[] oneValue = {5};
+        long[] lotValues = {5,6};
+        long[] lotValuesNotUniq1 = {5,5,5};
+        long[] lotValuesNotUniq2 = {5,6,5};
 
         for (String badParam : PARAMS_INT_BAD)
             assertArrayEquals(badValue, RestApiUtils.getIntParamsAsArray(badParam, true));

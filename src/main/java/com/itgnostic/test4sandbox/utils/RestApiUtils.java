@@ -13,10 +13,10 @@ public class RestApiUtils {
                 : new String[0];
     }
 
-    public static int[] getIntParamsAsArray(String paramValue, boolean onlyUnique) {
+    public static long[] getIntParamsAsArray(String paramValue, boolean onlyUnique) {
         return !StringUtils.isNullOrEmpty(paramValue) && paramValue.matches(REGEX_INT_PARAMS)
-                ? split2Int(paramValue, onlyUnique)
-                : new int[0];
+                ? split2Long(paramValue, onlyUnique)
+                : new long[0];
     }
 
     private static String[] split2String(String paramValue, boolean onlyUnique) {
@@ -25,9 +25,9 @@ public class RestApiUtils {
                 : paramValue.split(",");
     }
 
-    private static int[] split2Int(String paramValue, boolean onlyUnique) {
+    private static long[] split2Long(String paramValue, boolean onlyUnique) {
         return onlyUnique
-                ? Stream.of(paramValue.split(",")).mapToInt(Integer::parseInt).distinct().toArray()
-                : Stream.of(paramValue.split(",")).mapToInt(Integer::parseInt).toArray();
+                ? Stream.of(paramValue.split(",")).mapToLong(Long::parseLong).distinct().toArray()
+                : Stream.of(paramValue.split(",")).mapToLong(Long::parseLong).toArray();
     }
 }
