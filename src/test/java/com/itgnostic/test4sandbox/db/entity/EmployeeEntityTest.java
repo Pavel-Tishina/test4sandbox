@@ -1,9 +1,11 @@
 package com.itgnostic.test4sandbox.db.entity;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.jupiter.api.Order;
 import org.junit.runners.MethodSorters;
+
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -34,5 +36,11 @@ public class EmployeeEntityTest {
 
         e2.setPosition("");
         assertFalse(e1.equals(e2));
+
+        Set<Integer> d1 = Set.of(6, 1, 3, 4);
+        Collection<Integer> d2 = Arrays.asList(6, 1, 3, 4);
+
+
+        System.out.println(Objects.deepEquals(d1, d2));
     }
 }
