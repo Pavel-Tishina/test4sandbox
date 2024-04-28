@@ -46,14 +46,14 @@ public class RestApiUtilsTest {
         long[] lotValuesNotUniq2 = {5,6,5};
 
         for (String badParam : PARAMS_INT_BAD)
-            assertArrayEquals(badValue, RestApiUtils.getIntParamsAsArray(badParam, true));
+            assertArrayEquals(badValue, RestApiUtils.getLongParamsAsArray(badParam, true));
 
-        assertArrayEquals(oneValue, RestApiUtils.getIntParamsAsArray(PARAMS_INT_OK_1, true));
-        assertArrayEquals(oneValue, RestApiUtils.getIntParamsAsArray(PARAMS_INT_OK_2, true));
-        assertArrayEquals(lotValues, RestApiUtils.getIntParamsAsArray(PARAMS_INT_OK_3, true));
-        assertArrayEquals(lotValues, RestApiUtils.getIntParamsAsArray(PARAMS_INT_OK_4, true));
+        assertArrayEquals(oneValue, RestApiUtils.getLongParamsAsArray(PARAMS_INT_OK_1, true));
+        assertArrayEquals(oneValue, RestApiUtils.getLongParamsAsArray(PARAMS_INT_OK_2, true));
+        assertArrayEquals(lotValues, RestApiUtils.getLongParamsAsArray(PARAMS_INT_OK_3, true));
+        assertArrayEquals(lotValues, RestApiUtils.getLongParamsAsArray(PARAMS_INT_OK_4, true));
 
-        assertArrayEquals(lotValuesNotUniq1, RestApiUtils.getIntParamsAsArray(PARAMS_INT_OK_2, false));
-        assertArrayEquals(lotValuesNotUniq2, RestApiUtils.getIntParamsAsArray(PARAMS_INT_OK_4, false));
+        assertArrayEquals(lotValuesNotUniq1, RestApiUtils.getLongParamsAsArray(PARAMS_INT_OK_2, false));
+        assertArrayEquals(lotValuesNotUniq2, RestApiUtils.getLongParamsAsArray(PARAMS_INT_OK_4, false));
     }
 }

@@ -36,7 +36,7 @@ public class EmployeeEntity {
     @Getter
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="CREATED_DATE", nullable = false, updatable = false)
-    private final Date created = new Date();
+    private Date created = new Date();
 
     @Override
     public boolean equals(Object o) {
@@ -48,5 +48,26 @@ public class EmployeeEntity {
                 && Objects.equals(e.getLastName(), lastName)
                 && Objects.equals(e.getPosition(), position)
                 && Objects.equals(e.getSubordinates(), subordinates);
+    }
+
+    public EmployeeEntity clone() {
+        EmployeeEntity cloneE = new EmployeeEntity();
+        cloneE.setId(getId());
+        cloneE.setCreated(getCreated());
+        cloneE.setLastName(getLastName());
+        cloneE.setPosition(getPosition());
+        cloneE.setFirstName(getFirstName());
+        cloneE.setSupervisor(getSupervisor());
+        cloneE.setSubordinates(getSubordinates());
+
+        return cloneE;
+    }
+
+    private void setId(long id) {
+        this.id = id;
+    }
+
+    private void setCreated(Date created) {
+        this.created = created;
     }
 }

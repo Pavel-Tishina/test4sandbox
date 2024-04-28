@@ -1,5 +1,6 @@
 package com.itgnostic.test4sandbox.service;
 
+import com.google.common.collect.Sets;
 import com.itgnostic.test4sandbox.db.dao.EmployeeDbService;
 import com.itgnostic.test4sandbox.db.dao.impl.EmployeeDbServiceImpl;
 import com.itgnostic.test4sandbox.db.entity.EmployeeEntity;
@@ -46,12 +47,14 @@ public class EmployeeService {
         else
             out.addResult(employeeDbService.get(newId));
 
+        if (newId != null && supervisor != null)
+            addOrRemoveSubForSupervisor(supervisor, newId, false);
+
         return out;
     }
 
     public OperationResult get(long id) {
         OperationResult out = new OperationResult();
-
         if (id < 1) {
             out.addError(ValueErrors.ID_IS_ZERO_OR_MINUS.getErrorText());
             return out;
@@ -71,7 +74,6 @@ public class EmployeeService {
 
         if (page < 0)
             out.addError(RestApiErrors.BAD_PARAM.getErrorText().formatted("page", page));
-
         if (lim < 1)
             out.addError(RestApiErrors.BAD_PARAM.getErrorText().formatted("limit", lim));
 
@@ -118,7 +120,7 @@ public class EmployeeService {
         return out;
     }
 
-    public OperationResult modify(Integer id, String newFirstName, String newLastName, String newPosition, Long newSupervisor, Set<Long> newSubordinates) {
+    public OperationResult modify(Long id, String newFirstName, String newLastName, String newPosition, Long newSupervisor, Set<Long> newSubordinates) {
         OperationResult out = prapareOperationResult(newFirstName, newLastName, newSupervisor);
         if (id == null)
             out.addError(EMPLOYEES_ID_IS_NULL);
@@ -131,11 +133,37 @@ public class EmployeeService {
         if (out.hasErrors())
             return out;
 
-        if (EmployeeUtils.someChanges(editEntity, newFirstName, newLastName, newPosition, newSupervisor, newSubordinates))
+        if (EmployeeUtils.someChanges(editEntity, newFirstName, newLastName, newPosition, newSupervisor, newSubordinates)) {
+            Long oldSupervisorId = editEntity.getSupervisor();
+            Set<Long> oldSubordinates = editEntity.getSubordinates();
+
+            EmployeeEntity resultEntity = employeeDbService.modify(
+                    EmployeeUtils.updateValues(
+                            editEntity.clone(), newFirstName, newLastName, newPosition, newSupervisor, newSubordinates));
+
+            if (resultEntity != null) {
+                out.addResult(resultEntity);
+
+                if (!Objects.equals(oldSupervisorId, resultEntity.getSupervisor())) {
+                    if (oldSupervisorId != null)
+                        addOrRemoveSubForSupervisor(oldSupervisorId, resultEntity.getId(), true);
+
+                    if (resultEntity.getSupervisor() != null)
+                        addOrRemoveSubForSupervisor(resultEntity.getSupervisor(), resultEntity.getId(), false);
+                }
+
+                if (Objects.equals(oldSubordinates, resultEntity.getSubordinates())) {
+                    addOrRemoveSupervisorFor(resultEntity.getId(), Sets.difference(oldSubordinates, resultEntity.getSubordinates()), true);
+                    addOrRemoveSupervisorFor(resultEntity.getId(), Sets.difference(resultEntity.getSubordinates(), oldSubordinates), false);
+                }
+
+            }
+
             out.addResult(
                     employeeDbService.modify(
-                        EmployeeUtils.updateValues(
-                                editEntity, newFirstName, newLastName, newPosition, newSupervisor, newSubordinates)));
+                            EmployeeUtils.updateValues(
+                                    editEntity.clone(), newFirstName, newLastName, newPosition, newSupervisor, newSubordinates)));
+        }
         else
             out.addError(NO_CHANGES);
 
@@ -214,7 +242,6 @@ public class EmployeeService {
             for (Long subordinateId : employee.getSubordinates()) {
                 if (subordinateId == null)
                     continue;
-
                 EmployeeEntity subEnt = employeeDbService.get(subordinateId);
                 if (subEnt == null)
                     continue;
@@ -240,7 +267,6 @@ public class EmployeeService {
         if (StringUtils.isNullOrEmpty(lastName) || lastName.trim().isEmpty())
             out.addError(EMPLOYEE_NOT_SET_LAST_NAME);
 
-
         if (supervisor != null) {
             EmployeeEntity superVisorEntry = employeeDbService.get(supervisor.intValue());
 
@@ -253,18 +279,15 @@ public class EmployeeService {
 
     private void addOrRemoveSubForSupervisor(long supervisorId, long subId, boolean remove) {
         EmployeeEntity superVisor = employeeDbService.get(supervisorId);
-
         if (superVisor != null) {
             Set<Long> subs = superVisor.getSubordinates();
-
             if (remove)
                 subs.remove(subId);
             else
                 subs.add(subId);
 
             superVisor.setSubordinates(subs);
-
-            employeeDbService.modify(superVisor);
+            employeeDbService.modify(superVisor.clone());
         }
     }
 
@@ -277,7 +300,7 @@ public class EmployeeService {
                 else if (!remove && subE.getSupervisor() == null)
                     subE.setSupervisor(supervisorId);
 
-                employeeDbService.modify(subE);
+                employeeDbService.modify(subE.clone());
             }
         }
     }

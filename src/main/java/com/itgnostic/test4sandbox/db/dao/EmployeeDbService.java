@@ -14,7 +14,7 @@ public interface EmployeeDbService {
     List<EmployeeEntity> getList(long[] ids);
     List<EmployeeEntity> getList(Collection<Long> ids);
 
-    boolean modify(EmployeeEntity e);
+    EmployeeEntity modify(EmployeeEntity e);
 
     Boolean del(EmployeeEntity e);
     Boolean del(int id);

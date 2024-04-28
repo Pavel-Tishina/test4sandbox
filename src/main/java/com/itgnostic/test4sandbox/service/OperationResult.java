@@ -69,7 +69,7 @@ public class OperationResult {
 
     public String getErrorDetails() {
         return hasErrors()
-                ? "Result has " + errorList.size() + "errors:" + String.join("\n\t", errorList)
+                ? "Result has " + errorList.size() + " errors:" + String.join("\n\t", errorList)
                 : "No errors";
     }
 

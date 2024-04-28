@@ -17,7 +17,7 @@ public class EmployeeUtils {
                                       String newFirstName,
                                       String newLastName,
                                       String newPosition,
-                                      long newSupervisor,
+                                      Long newSupervisor,
                                       Set<Long> newSubs) {
 
         return !Objects.equals(e.getSupervisor(), newSupervisor)
@@ -31,7 +31,7 @@ public class EmployeeUtils {
                                       String newFirstName,
                                       String newLastName,
                                       String newPosition,
-                                      long newSupervisor,
+                                      Long newSupervisor,
                                       Set<Long> newSubs) {
         e.setFirstName(newFirstName);
         e.setLastName(newLastName);

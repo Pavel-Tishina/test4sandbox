@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReqEmployeeModel {
+    String id;
     String firstName;
     String lastName;
     String position;
     String supervisor;
+    String subordinates;
 }

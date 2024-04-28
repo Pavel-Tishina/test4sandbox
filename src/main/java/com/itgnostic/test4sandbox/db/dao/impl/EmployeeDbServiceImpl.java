@@ -73,14 +73,21 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
-    @Transactional
-    public boolean modify(EmployeeEntity e) {
+    //@Transactional
+    public EmployeeEntity modify(EmployeeEntity e) {
         if (!session.isOpen() || e == null || e.getId() == null)
+            return null;
+
+        EmployeeEntity existed = get(e.getId());
+        //session.refresh(existed);
+        /*
+        if (existed == null)
             return false;
 
-        EmployeeEntity existed = get(e.getId().intValue());
+         */
+
         if (existed == null || existed.equals(e) || !existed.getCreated().equals(e.getCreated()))
-            return false;
+            return null;
 
         if (!Objects.equals(existed.getSupervisor(), e.getSupervisor()))
             existed.setSupervisor(e.getSupervisor());
@@ -98,12 +105,14 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
             existed.setSubordinates(e.getSubordinates() == null
                     ? new HashSet<>() : e.getSubordinates());
 
+
+
         Transaction transaction = session.beginTransaction();
 
-        session.update(existed);
+        session.merge(existed);
         session.flush();
         transaction.commit();
-        return true;
+        return existed;
     }
 
     @Override

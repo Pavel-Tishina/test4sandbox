@@ -1,6 +1,7 @@
 package com.itgnostic.test4sandbox.rest.api;
 
 import com.itgnostic.test4sandbox.errors.RestApiErrors;
+import com.itgnostic.test4sandbox.errors.ValueErrors;
 import com.itgnostic.test4sandbox.rest.api.model.ReqEmployeeModel;
 import com.itgnostic.test4sandbox.service.EmployeeService;
 import com.itgnostic.test4sandbox.service.OperationResult;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.itgnostic.test4sandbox.errors.RestApiErrors.BAD_PARAM;
 import static com.itgnostic.test4sandbox.errors.RestApiErrors.NO_PARAM;
@@ -25,7 +27,6 @@ import static com.itgnostic.test4sandbox.errors.RestApiErrors.NO_PARAM;
 @RequestMapping(value = "/rest/api")
 public class RestApiController {
     private List<String> errors = new ArrayList<>();
-    private int status = 200;
 
     @Autowired
     private EmployeeService employeeService;
@@ -58,27 +59,51 @@ public class RestApiController {
 
     // TODO
     @RequestMapping(value = "/employee", method = RequestMethod.PUT)
-    public ResponseEntity<String> putEmployee(@RequestParam(value = "id") String id) {
-        /*
+    public ResponseEntity<String> putEmployee(@RequestBody ReqEmployeeModel updEmployee) {
+        Set<Long> subs = RestApiUtils.split2SetLong(updEmployee.getSubordinates());
+        Long employeeId = RestApiUtils.parseLong(updEmployee.getId());
+        Long supervisorId = RestApiUtils.parseLong(updEmployee.getSupervisor());
+
         errors = new ArrayList<>();
 
-        if (id == null) {
-            errors.add(NO_PARAM.getErrorText().formatted("id"));
-        }
-        else {
-            int[] _id = RestApiUtils.getIntParamsAsArray(id, true);
+        if (Strings.isBlank(updEmployee.getId()))
+            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("id"));
+        else if (!updEmployee.getId().matches("\\d+"))
+            errors.add(BAD_PARAM.getErrorText().formatted("id", updEmployee.getId()));
+        else if (Objects.equals(employeeId, supervisorId))
+            errors.add(ValueErrors.SUPERVISOR_ID_SAME_WITH_EMPLOYEE_ID.getErrorText());
 
-            if (_id.length == 0) {
-                errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("id", id));
-            }
-        }
+        if (subs.contains(employeeId))
+            errors.add(ValueErrors.EMPLOYEE_ID_IN_SUBS.getErrorText());
 
-        return errors.isEmpty()
-                ? ResponseEntity.ok("put employer: " + id)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors.toString());
+        if (subs.contains(supervisorId))
+            errors.add(ValueErrors.SUPERVISOR_ID_IN_SUBS.getErrorText());
 
-         */
-        return null;
+        if (Strings.isBlank(updEmployee.getFirstName()))
+            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("firstName"));
+        if (Strings.isBlank(updEmployee.getLastName()))
+            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("lastName"));
+
+        if (Strings.isNotBlank(updEmployee.getSupervisor()) && !updEmployee.getSupervisor().matches("\\d+"))
+            errors.add(BAD_PARAM.getErrorText().formatted("supervisor", updEmployee.getSupervisor()));
+
+        if (!errors.isEmpty())
+            return badResponse(HttpStatus.PRECONDITION_FAILED);
+
+        OperationResult result = employeeService.modify(
+                RestApiUtils.parseLong(updEmployee.getId()),
+                updEmployee.getFirstName(),
+                updEmployee.getLastName(),
+                updEmployee.getPosition(),
+                RestApiUtils.parseLong(updEmployee.getSupervisor()),
+                RestApiUtils.split2SetLong(updEmployee.getSubordinates()));
+
+        if (result.hasErrors())
+            errors.add(result.getErrorDetails());
+
+        return result.isSuccess()
+                ? okResponse(result)
+                : badResponse(HttpStatus.NOT_FOUND, result);
     }
 
     @RequestMapping(value = "/employee", method = RequestMethod.POST)
@@ -121,7 +146,7 @@ public class RestApiController {
         if (!errors.isEmpty())
             return badResponse(HttpStatus.PRECONDITION_FAILED);
 
-        long[] _id = RestApiUtils.getIntParamsAsArray(id, true);
+        long[] _id = RestApiUtils.getLongParamsAsArray(id, true);
 
         OperationResult result = employeeService.del(_id[0]);
 
