@@ -57,6 +57,7 @@ public class RestApiController {
                 : badResponse(HttpStatus.NOT_FOUND, result);
     }
 
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
     @RequestMapping(value = "/employee", method = RequestMethod.PUT)
     public ResponseEntity<String> putEmployee(@RequestBody ReqEmployeeModel updEmployee) {
         Set<Long> subs = RestApiUtils.split2SetLong(updEmployee.getSubordinates());
@@ -105,6 +106,7 @@ public class RestApiController {
                 : badResponse(HttpStatus.NOT_FOUND, result);
     }
 
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
     @RequestMapping(value = "/employee", method = RequestMethod.POST)
     public ResponseEntity<String> postEmployee(@RequestBody ReqEmployeeModel newEmployee) {
         errors = new ArrayList<>();
@@ -132,6 +134,7 @@ public class RestApiController {
                 : badResponse(HttpStatus.NOT_FOUND);
     }
 
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
     @RequestMapping(value = "/employee", method = RequestMethod.DELETE)
     public ResponseEntity<String> delEmployee(@RequestParam(value = "id") String id) {
         errors = new ArrayList<>();
@@ -154,6 +157,7 @@ public class RestApiController {
                 : badResponse(HttpStatus.INTERNAL_SERVER_ERROR, result);
     }
 
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
     @RequestMapping(value = "/employee/list", method = RequestMethod.GET)
     public ResponseEntity<String> getEmployeesList(@RequestParam(value = "ids") String ids) {
         errors = new ArrayList<>();
@@ -215,49 +219,14 @@ public class RestApiController {
     @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
     @RequestMapping(value = "/employee/total", method = RequestMethod.GET)
     public ResponseEntity<String> getTotal() {
-
         Long result = employeeService.getTotal();
-
         return result != null && result >= 0
                 ? ResponseEntity.ok().body(new JSONObject().put("total", result).toString())
                 : badResponse(HttpStatus.NOT_FOUND);
     }
 
-    /*
-    @RequestMapping(value = "/employee/page", method = RequestMethod.OPTIONS)
-    public ResponseEntity<String> getEmployeesPage(@RequestParam(value = "p") String p, @RequestParam(value = "lim") String lim) {
-        errors = new ArrayList<>();
-        Long page = null;
-        Long limit = null;
-
-        if (Strings.isBlank(p))
-            errors.add(NO_PARAM.getErrorText().formatted("p"));
-        else if (!p.matches("\\d+"))
-            errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("p", p));
-        else
-            page = Long.parseLong(p);
-
-        if (Strings.isBlank(lim))
-            errors.add(NO_PARAM.getErrorText().formatted("lim"));
-        else if (!lim.matches("\\d+"))
-            errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("lim", lim));
-        else
-            limit = Long.parseLong(lim);
-
-        if (page == null || lim == null)
-            return badResponse(HttpStatus.PRECONDITION_FAILED);
-
-        OperationResult result = employeeService.get(page, limit);
-        if (result.hasErrors())
-            errors.add(result.getErrorDetails());
-
-        return result.isSuccess()
-                ? okResponse(result)
-                : badResponse(HttpStatus.NOT_FOUND, result);
-    }
-    */
-
     // TODO
+    // need?
     @RequestMapping(value = "/employee/subordinates", method = RequestMethod.GET)
     public ResponseEntity<String> getEmployeeSubordinates(@RequestParam(value = "id") String id) {
         return null;
