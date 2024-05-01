@@ -20,6 +20,7 @@ public interface EmployeeDbService {
     Boolean del(int id);
 
     Long getLastIndex();
+    Long getTotal();
 
 }
 

@@ -55,8 +55,13 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
 
     @Override
     public List<EmployeeEntity> get(long page, long limit) {
-        return executeQuery("SELECT e FROM %s e WHERE e.id BETWEEN %s AND %s"
-                .formatted(entityName, page * limit, limit + (page * limit)));
+        String jpql = "FROM " + entityName;
+
+        Query query = session.createQuery(jpql);
+        query.setFirstResult((int) (page * limit));
+        query.setMaxResults((int) limit);
+
+        return query.list();
     }
 
     @Override
@@ -69,7 +74,7 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
         if (!session.isOpen())
             return null;
 
-        return executeQuery("SELECT e FROM " + entityName + " e WHERE e.id IN :ids", "ids", ids);
+        return executeQuery("SELECT e FROM %s e WHERE e.id IN :ids".formatted(entityName), "ids", ids);
     }
 
     @Override
@@ -79,13 +84,6 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
             return null;
 
         EmployeeEntity existed = get(e.getId());
-        //session.refresh(existed);
-        /*
-        if (existed == null)
-            return false;
-
-         */
-
         if (existed == null || existed.equals(e) || !existed.getCreated().equals(e.getCreated()))
             return null;
 
@@ -148,6 +146,12 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
         Object out = query.getSingleResult();
 
         return out == null ? null : (Long) out;
+    }
+
+    @Override
+    public Long getTotal() {
+        Query<Long> query = session.createQuery("select count(*) from " + entityName, Long.class);
+        return query.getSingleResult();
     }
 
     protected List<EmployeeEntity> executeQuery(String sql, String param, Object val) {

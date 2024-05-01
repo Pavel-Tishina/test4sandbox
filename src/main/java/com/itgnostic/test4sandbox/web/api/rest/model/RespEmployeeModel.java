@@ -1,4 +1,4 @@
-package com.itgnostic.test4sandbox.rest.api.model;
+package com.itgnostic.test4sandbox.web.api.rest.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

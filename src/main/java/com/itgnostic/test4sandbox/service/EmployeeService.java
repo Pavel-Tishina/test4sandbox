@@ -209,6 +209,10 @@ public class EmployeeService {
         return out;
     }
 
+    public Long getTotal() {
+        return employeeDbService.getTotal();
+    }
+
     // TODO : if employee remove - need delete all supervisor and subordinates
 
 

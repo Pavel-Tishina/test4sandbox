@@ -1,8 +1,8 @@
-package com.itgnostic.test4sandbox.rest.api;
+package com.itgnostic.test4sandbox.web.api.rest;
 
 import com.itgnostic.test4sandbox.errors.RestApiErrors;
 import com.itgnostic.test4sandbox.errors.ValueErrors;
-import com.itgnostic.test4sandbox.rest.api.model.ReqEmployeeModel;
+import com.itgnostic.test4sandbox.web.api.rest.model.ReqEmployeeModel;
 import com.itgnostic.test4sandbox.service.EmployeeService;
 import com.itgnostic.test4sandbox.service.OperationResult;
 import com.itgnostic.test4sandbox.utils.JsonUtils;
@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.itgnostic.test4sandbox.errors.RestApiErrors.BAD_PARAM;
-import static com.itgnostic.test4sandbox.errors.RestApiErrors.NO_PARAM;
+import static com.itgnostic.test4sandbox.errors.RestApiErrors.*;
 
+@CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
 @RestController
 @RequestMapping(value = "/rest/api")
 public class RestApiController {
@@ -31,33 +31,32 @@ public class RestApiController {
     @Autowired
     private EmployeeService employeeService;
 
-
-    // TODO
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
     @RequestMapping(value = "/employee", method = RequestMethod.GET)
     public ResponseEntity<String> getEmployee(@RequestParam(value = "id") String id) {
-        /*
+        Long _id = null;
         errors = new ArrayList<>();
 
-        if (id == null) {
-            errors.add(NO_PARAM.getErrorText().formatted("id"));
-        }
-        else {
-            int[] _id = RestApiUtils.getIntParamsAsArray(id, true);
+        if (Strings.isBlank(id))
+            errors.add(NO_PARAM_VALUE.getErrorText().formatted("id"));
+        else if (!id.matches("\\d+"))
+            errors.add(BAD_PARAM.getErrorText().formatted("id", id));
+        else
+            _id = RestApiUtils.parseLong(id);
 
-            if (_id.length == 0) {
-                errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("id", id));
-            }
-        }
+        if (!errors.isEmpty())
+            return badResponse(HttpStatus.PRECONDITION_FAILED);
 
-        return errors.isEmpty()
-                ? ResponseEntity.ok("get employer: " + id)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors.toString());
+        OperationResult result = employeeService.get(_id);
 
-         */
-        return null;
+        if (result.hasErrors())
+            errors.add(result.getErrorDetails());
+
+        return result.isSuccess()
+                ? okResponse(result)
+                : badResponse(HttpStatus.NOT_FOUND, result);
     }
 
-    // TODO
     @RequestMapping(value = "/employee", method = RequestMethod.PUT)
     public ResponseEntity<String> putEmployee(@RequestBody ReqEmployeeModel updEmployee) {
         Set<Long> subs = RestApiUtils.split2SetLong(updEmployee.getSubordinates());
@@ -67,7 +66,7 @@ public class RestApiController {
         errors = new ArrayList<>();
 
         if (Strings.isBlank(updEmployee.getId()))
-            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("id"));
+            errors.add(NO_PARAM_VALUE.getErrorText().formatted("id"));
         else if (!updEmployee.getId().matches("\\d+"))
             errors.add(BAD_PARAM.getErrorText().formatted("id", updEmployee.getId()));
         else if (Objects.equals(employeeId, supervisorId))
@@ -80,9 +79,9 @@ public class RestApiController {
             errors.add(ValueErrors.SUPERVISOR_ID_IN_SUBS.getErrorText());
 
         if (Strings.isBlank(updEmployee.getFirstName()))
-            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("firstName"));
+            errors.add(NO_PARAM_VALUE.getErrorText().formatted("firstName"));
         if (Strings.isBlank(updEmployee.getLastName()))
-            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("lastName"));
+            errors.add(NO_PARAM_VALUE.getErrorText().formatted("lastName"));
 
         if (Strings.isNotBlank(updEmployee.getSupervisor()) && !updEmployee.getSupervisor().matches("\\d+"))
             errors.add(BAD_PARAM.getErrorText().formatted("supervisor", updEmployee.getSupervisor()));
@@ -111,9 +110,9 @@ public class RestApiController {
         errors = new ArrayList<>();
 
         if (Strings.isBlank(newEmployee.getFirstName()))
-            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("firstName"));
+            errors.add(NO_PARAM_VALUE.getErrorText().formatted("firstName"));
         if (Strings.isBlank(newEmployee.getLastName()))
-            errors.add(RestApiErrors.NO_PARAM_VALUE.getErrorText().formatted("lastName"));
+            errors.add(NO_PARAM_VALUE.getErrorText().formatted("lastName"));
 
         if (!errors.isEmpty())
             return badResponse(HttpStatus.PRECONDITION_FAILED);
@@ -155,32 +154,32 @@ public class RestApiController {
                 : badResponse(HttpStatus.INTERNAL_SERVER_ERROR, result);
     }
 
-    // TODO
     @RequestMapping(value = "/employee/list", method = RequestMethod.GET)
     public ResponseEntity<String> getEmployeesList(@RequestParam(value = "ids") String ids) {
-        /*
         errors = new ArrayList<>();
+        Set<Long> _ids = RestApiUtils.split2SetLong(ids);
 
-        if (ids == null) {
-            errors.add(NO_PARAM.getErrorText().formatted("id"));
-        }
-        else {
-            int[] _id = RestApiUtils.getIntParamsAsArray(ids, true);
+        if (ids == null)
+            errors.add(NO_PARAM.getErrorText().formatted("ids"));
+        else if (!ids.matches("(\\d+,?)+"))
+            errors.add(BAD_PARAM.getErrorText().formatted("ids", ids));
+        else if (_ids.isEmpty())
+            errors.add(NO_PARAM_VALUE.getErrorText().formatted("ids"));
 
-            if (_id.length == 0) {
-                errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("ids", ids));
-            }
-        }
+        if (!errors.isEmpty())
+            return badResponse(HttpStatus.PRECONDITION_FAILED);
 
-        return errors.isEmpty()
-                ? ResponseEntity.ok("get list: " + ids)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors.toString());
+        OperationResult result = employeeService.getList(_ids);
 
-         */
+        if (result.hasErrors())
+            errors.add(result.getErrorDetails());
 
-        return null;
+        return result.isSuccess()
+                ? okResponse(result)
+                : badResponse(HttpStatus.NOT_FOUND, result);
     }
 
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
     @RequestMapping(value = "/employee/page", method = RequestMethod.GET)
     public ResponseEntity<String> getEmployeesPage(@RequestParam(value = "p") String p, @RequestParam(value = "lim") String lim) {
         errors = new ArrayList<>();
@@ -213,29 +212,54 @@ public class RestApiController {
                 : badResponse(HttpStatus.NOT_FOUND, result);
     }
 
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
+    @RequestMapping(value = "/employee/total", method = RequestMethod.GET)
+    public ResponseEntity<String> getTotal() {
+
+        Long result = employeeService.getTotal();
+
+        return result != null && result >= 0
+                ? ResponseEntity.ok().body(new JSONObject().put("total", result).toString())
+                : badResponse(HttpStatus.NOT_FOUND);
+    }
+
+    /*
+    @RequestMapping(value = "/employee/page", method = RequestMethod.OPTIONS)
+    public ResponseEntity<String> getEmployeesPage(@RequestParam(value = "p") String p, @RequestParam(value = "lim") String lim) {
+        errors = new ArrayList<>();
+        Long page = null;
+        Long limit = null;
+
+        if (Strings.isBlank(p))
+            errors.add(NO_PARAM.getErrorText().formatted("p"));
+        else if (!p.matches("\\d+"))
+            errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("p", p));
+        else
+            page = Long.parseLong(p);
+
+        if (Strings.isBlank(lim))
+            errors.add(NO_PARAM.getErrorText().formatted("lim"));
+        else if (!lim.matches("\\d+"))
+            errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("lim", lim));
+        else
+            limit = Long.parseLong(lim);
+
+        if (page == null || lim == null)
+            return badResponse(HttpStatus.PRECONDITION_FAILED);
+
+        OperationResult result = employeeService.get(page, limit);
+        if (result.hasErrors())
+            errors.add(result.getErrorDetails());
+
+        return result.isSuccess()
+                ? okResponse(result)
+                : badResponse(HttpStatus.NOT_FOUND, result);
+    }
+    */
+
     // TODO
     @RequestMapping(value = "/employee/subordinates", method = RequestMethod.GET)
     public ResponseEntity<String> getEmployeeSubordinates(@RequestParam(value = "id") String id) {
-        /*
-        errors = new ArrayList<>();
-
-        if (id == null) {
-            errors.add(NO_PARAM.getErrorText().formatted("id"));
-        }
-        else {
-            int[] _id = RestApiUtils.getIntParamsAsArray(id, true);
-
-            if (_id.length == 0) {
-                errors.add(RestApiErrors.BAD_PARAM.getErrorText().formatted("id", id));
-            }
-        }
-
-        return errors.isEmpty()
-                ? ResponseEntity.ok("get subordinates: " + id)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(errors.toString());
-
-         */
-
         return null;
     }
 
