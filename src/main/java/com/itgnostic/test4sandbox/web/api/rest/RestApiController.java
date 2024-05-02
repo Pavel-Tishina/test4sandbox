@@ -235,7 +235,7 @@ public class RestApiController {
         errors = new ArrayList<>();
         OperationResult result = employeeService.getPossibleSupervisors(_id);
 
-        return result.isSuccess()
+        return result.isSuccess() && !result.getResultList().isEmpty()
                 ? okResponse(result)
                 : badResponse(HttpStatus.NOT_FOUND);
     }

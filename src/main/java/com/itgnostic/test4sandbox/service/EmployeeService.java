@@ -223,6 +223,7 @@ public class EmployeeService {
         List<EmployeeEntity> supervisors = employeeDbService.getPossibleSupervisors(subId)
                 .stream()
                 .filter(e -> !Objects.equals(e.getId(), subId))
+                .filter(e -> e.getSupervisor() == null || !Objects.equals(e.getSupervisor(), subId))
                 .filter(e -> !e.getSubordinates().contains(subId)).collect(Collectors.toList());
 
         OperationResult out = new OperationResult();

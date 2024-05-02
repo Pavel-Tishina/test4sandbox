@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Сервис для вашего приложения React
+  react-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Порт для приложения React
+    volumes:
+      - ./app:/app  # Монтируем локальную директорию внутрь контейнера
+    depends_on:
+      - spring-boot-app  # Указываем зависимость от сервиса Spring Boot
+
+  # Сервис для вашего приложения Spring Boot
+  spring-boot-app:
+    build:
+      context: .  # Путь к Dockerfile вашего Spring Boot приложения
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # Порт для Spring Boot приложения
+    volumes:
+      - .:/app  # Монтируем локальную директорию внутрь контейнера
+    environment:
+      SPRING_PROFILES_ACTIVE: docker  # Устанавливаем профиль Spring Boot
+    depends_on:
+      - db  # Указываем зависимость от сервиса с базой данных
+
+  # Сервис для базы данных H2
+  db:
+    image: "alpine"
+    command: >
+      sh -c "wget -O h2.jar http://www.h2database.com/h2-2019-03-13.zip && \
+             unzip h2.jar -d /h2 && \
+             java -jar /h2/h2*.jar -webAllowOthers -tcpAllowOthers -ifExists"
+    ports:
+      - "1521:1521"  # Порт для доступа к базе данных H2
+    volumes:
+      - ./data:/data  # Монтируем локальную директорию для хранения данных H2

@@ -441,14 +441,16 @@ class EmployeeComponent extends React.Component {
                                 <div>
                                     <Form.Label>Supervisor</Form.Label>
                                     <Form.Select aria-label="Default select example" onChange={(e) => this.setFieldValue(e, 'supervisor')} 
-                                        value={this.getFromSelectEmp("supervisor")}
+                                        value={this.getFromSelectEmp("supervisor")} 
                                     >
                                         <option value=""></option>
                                         {(this.getFromSelectEmp("supervisor") !== '' || this.getFromSelectEmp("supervisor") > 0) && (
                                             <option value={this.getFromSelectEmp("supervisor")} active>{this.getFromSelectEmp("supervisorFullName")}</option>
                                         )}
                                         {possibleSupervisors.map(sv => (
-                                            <option value={sv["id"]}>{sv["fullName"]}</option>
+                                            sv["id"] !== this.getFromSelectEmp("supervisor") && (
+                                                <option value={sv["id"]}>{sv["fullName"]}</option>
+                                            )
                                         ))}
                                     </Form.Select>
                                 </div> 

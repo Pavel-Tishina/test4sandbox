@@ -12,6 +12,7 @@ spring:
     initialization-mode: always
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
 #    properties:
 #      javax.persistence.schema-generation.database.action: create
     hibernate:

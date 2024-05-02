@@ -59,7 +59,7 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
-			<scope>run</scope>
+			<!-- <scope>run</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>javax.persistence</groupId>
