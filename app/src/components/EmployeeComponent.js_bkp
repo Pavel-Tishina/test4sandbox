@@ -1,0 +1,538 @@
+// main page
+import React from "react";
+import EmployeeService from "../services/EmployeeService";
+import Pagination from 'react-bootstrap/Pagination';
+import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+//import EmployeeElementComponent from './EmployeeElementComponent'
+
+//import { isObjectLiteralElementLike } from "typescript";
+
+class EmployeeComponent extends React.Component {
+    
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            activePage      : props.activePage || undefined,
+            totalN          : undefined,
+            limitN          : 5,
+            employees       : [],
+            dialogType      : undefined,
+            showDialog      : false,
+            employees2Del   : [],            
+            selectedEmp     : undefined,
+            selectedSupEmp  : undefined
+        }
+
+        this.setActivePage = this.setActivePage.bind(this);
+        this.prePageN = this.prePageN.bind(this);
+        this.nxtPageN = this.nxtPageN.bind(this);
+        this.maxPage = this.maxPage.bind(this);
+
+        this.undefSelectedEmployeeData = this.undefSelectedEmployeeData.bind(this);
+        this.getSelectedEmployeeData = this.getSelectedEmployeeData.bind(this);
+        this.setFieldValue = this.setFieldValue.bind(this);
+        this.getSupFullName = this.getSupFullName.bind(this);
+
+        this.closeAlert = this.closeAlert.bind(this);
+        this.showAlert = this.showAlert.bind(this);
+
+        this.closeDialog = this.closeDialog.bind(this);
+        this.showDialog = this.showDialog.bind(this);
+
+        this.getCardID = this.getCardID.bind(this);
+    }
+
+    componentDidMount() {
+        // get total elements count, and 
+        if (this.state.totalN === undefined || this.state.activePage === undefined) {
+            EmployeeService.getTotal().then((response) => {
+                console.dir(response.data.total);
+                this.setState({ totalN: response.data.total });
+                this.setState({ activePage: Math.floor(response.data.total / this.state.limitN / 2) });
+                console.log(this.state.totalN + "\t" + this.state.activePage);
+            }, (error) => {
+                console.log(error);
+                this.setState({ totalN: 0 });
+                this.setState({ activePage: 0 });
+            });
+        }
+        
+        const p = this.state.activePage !== undefined && this.state.activePage >= 0
+            ? this.state.activePage
+            : 0;
+
+
+        EmployeeService.getEmployeePage(p, this.state.limitN).then((response) => {
+            console.log(response.data);
+            this.setState({ employees: response.data.result})
+          }, (error) => {
+            console.log(error);
+            this.setState({ employees: []})
+          });
+
+    }
+
+    prePageN() {
+        return this.state.activePage - 1;
+    }
+
+    nxtPageN() {
+        return this.state.activePage + 1;
+    }
+
+    maxPage() {
+        return Math.floor(this.state.totalN / this.state.limitN);
+    }
+
+    setActivePage = (n) => {
+        if (n < 0) {
+            this.setState({ activePage : 0})
+        }
+        else if (n > this.maxPage()) {
+            this.setState({ activePage : this.maxPage() })
+        }
+        else {
+            this.setState({ activePage : n})
+        }
+
+        this.componentDidMount();
+    }
+
+    fetchEmployeeData() {
+        const { activePage, limitN } = this.state;
+        EmployeeService.getEmployeePage(activePage, limitN)
+            .then((response) => {
+                //console.log(response.data);
+                this.setState({ employees: response.data.result });
+            })
+            .catch((error) => {
+                console.log(error);
+                this.setState({ employees: [] });
+            });
+    }
+
+
+    getSelectedEmployeeData = (id) => {
+    //getSelectedEmployeeData(id) {
+        console.log('getSelectedEmployeeData START');
+        this.undefSelectedEmployeeData();
+
+        console.log('ID == ' + id);
+
+        const curEmp = this.state.employees.find(e => e.id === id);
+        console.dir('selectedEmp == ' + curEmp["first name"] + ' ' + curEmp["id"]);
+        if (curEmp !== null && curEmp !== undefined) {
+            this.setState({ selectedEmp : curEmp });
+
+            const { selectedEmp } = this.state;
+            console.log('SelectedEMP = ' + selectedEmp["id"]);
+
+            const supId = curEmp["supervisor"];
+            if (supId !== null && supId !== undefined && supId > 0) {
+                console.log('supId == ' + supId);
+                
+                EmployeeService.getEmployeeById(supId).then((response) => {
+                    console.log('FIND SUPERVISOR = ' + response.data.result);
+                    this.setState({ selectedSupEmp: response.data.result});
+
+                    const { selectedSupEmp } = this.state;
+
+                    console.log('SelectedSubEMP = ' + selectedSupEmp["id"]);
+                  }, (error) => {
+                    console.log(error);
+                    this.setState({ selectedSupEmp: undefined});
+                  });
+            }
+        }
+
+        
+
+        
+        
+    }
+
+    undefSelectedEmployeeData() {
+        this.setState({
+            employees2Del   : [],
+            selectedEmp     : undefined,
+            selectedSupEmp  : undefined
+        });
+    }
+
+    setFieldValue = (event, fieldName) => {
+        const { selectedEmp }  = this.state;
+        console.dir('selectedEmp = ' + selectedEmp);
+
+        if (selectedEmp !== null && selectedEmp !== undefined) {
+            if (fieldName === 'firstName') {
+                console.log('OLD first name' + selectedEmp["first name"]);
+                selectedEmp["first name"] = event.target.value;
+                console.log('NEW first name' + selectedEmp["first name"]);
+              } 
+              else if (fieldName === 'lastName') {
+                console.log('OLD last name' + selectedEmp["last name"]);
+                selectedEmp["last name"] = event.target.value;
+                console.log('OLD last name' + selectedEmp["last name"]);
+              } 
+              else if (fieldName === 'position') {
+                console.log('OLD position' + selectedEmp["position"]);
+                selectedEmp["position"] = event.target.value;
+                console.log('OLD position' + selectedEmp["position"]);
+              }
+              
+            
+            this.setState({ selectedEmp : selectedEmp });  
+        }
+
+        /*
+        if (fieldName === 'firstName') {
+          this.setState({const  : event.target.value});
+        } else if (fieldName === 'lastName') {
+          this.setState({lastName : event.target.value});
+        } else if (fieldName === 'position') {
+          this.setState({position : event.target.value});
+        }
+        */
+
+      };
+
+    getSupFullName() {
+        const selectedSup = this.state.selectedSupEmp;
+        return selectedSup !== null 
+            && selectedSup !== undefined 
+            && selectedSup["id"] > 0
+                ? selectedSup["first name"] + ' ' + selectedSup["last name"] + ' (' + selectedSup["id"] + ')'
+                : '';
+    }
+
+    getCardID(id) {
+        return 'card-' + id;
+    }
+
+    closeDialog = () => {
+        this.setState({ showDialog: false });
+    };  
+
+    showDialog = (type, id) => {
+        //this.setState({ showDialog: true, dialogType: type });
+    
+        console.log('ids instance ' + (typeof id) + "\t" + id);
+    
+        if (typeof id === 'number') {
+            console.log('id === ' + id);
+            //this.getSelectedEmployeeData(id);
+            this.getSelectedEmployeeData(id, () => {
+                this.setState({ showDialog: true, dialogType: type });
+            });
+        } else if (Array.isArray(id)) {
+            console.log('ids === ' + id);
+        }
+
+        this.setState({ showDialog: true, dialogType: type });
+    };
+
+    closeAlert = () => {
+        this.setState({ showAlert: false });
+    };  
+
+    showAlert = (msg) => {
+        this.setState({ showAlert: true, msgAlert : msg });
+    };
+
+    // TODO
+    // dialog show and hide!
+
+    render (){
+        const { activePage, totalN, limitN, employees, showDialog, dialogType,
+            selectedEmp, selectedSupEmp
+        } = this.state;
+
+        //console.dir(selectedEmp);
+        //console.dir(selectedSupEmp);
+        //console.dir(employees);
+
+        return (
+            <>
+                {employees.map(emp => (
+                    <Card style={{ 
+                        width: '40rem', 
+                        textAlign: 'left', 
+                        cursor: 'pointer' }}
+
+                        id={this.getCardID(emp["id"])}
+                    >
+                        <Card.Body>    
+                        <Card.Title >{emp["first name"]} {emp["last name"]} ({emp["id"]})</Card.Title>
+                        <Card.Text >
+                            <div>Position: {emp["position"]}<p>Supervisor: </p></div>
+                        </Card.Text>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }} >
+                                <Button variant="primary" 
+                                    onClick={() => this.showDialog('employee', emp["id"])}>Employee info</Button>
+                                    {(emp["supervisor"] !== undefined || emp["supervisor"] >= 0) && (
+                                        <Button variant="secondary" onClick={() => this.showDialog('employee', emp["supervisor"])}>Supervisor info</Button>
+                                    )}
+                            </div>            
+                        </Card.Body>
+                    </Card>
+                ))}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '40rem' }}>
+                    <Pagination>
+                        <Pagination.First onClick={() => this.setActivePage(0)} />
+                        <Pagination.Prev onClick={() => this.setActivePage(activePage - 1)}/>
+                        
+                        <Pagination.Item active>{activePage}</Pagination.Item>
+                    
+                        <Pagination.Next onClick={() => this.setActivePage(activePage + 1)} />
+                        <Pagination.Last onClick={() => this.setActivePage(this.maxPage())} />
+                    </Pagination>
+
+                    <Button variant="primary" onClick={() => this.showDialog('add', null)}>Add</Button>
+                    <Button variant="secondary" onClick={() => this.showDialog('del', null)}>Del</Button>    
+                </div>
+
+
+
+
+                <Modal show={showDialog} onHide={this.closeDialog} className="overlay">
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            {dialogType === 'supervisor' && (
+                                <p>Supervisor of
+                                <p>{selectedEmp["first name"]} {selectedEmp["last name"]}</p></p>
+                            )}
+                            {dialogType === 'employee' && (
+                                <p>Information about Employye</p>
+                            )}
+                            {dialogType === 'add' && (
+                                <p>Add new Employee</p>
+                            )}
+                            {dialogType === 'del' && (
+                                <p>Delete selected Employees</p>
+                            )}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {dialogType === 'del' && (
+                            <p>Do you want delete users?</p>
+                        )}
+
+
+                        {dialogType !== 'add' && dialogType !== 'del' && (
+                            <div>
+                                <Form.Label>ID</Form.Label>
+                                <Form.Control value='ddd' readOnly />
+                                <Form.Text id="field-id" />
+                            </div>  
+                        )}
+                        {dialogType !== 'del' && (
+                            <div>
+                                <div>
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control value='ddd'
+                                        onChange={(e) => this.setFieldValue(e, 'firstName')}
+                                    />
+                                    <Form.Text id="field-first-name" />
+                                </div>
+                                <div>
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control value='ddd'
+                                        onChange={(e) => this.setFieldValue(e, 'lastName')}
+                                    />
+                                    <Form.Text id="field-last-name" />
+                                </div>
+                                <div>
+                                    <Form.Label>Position</Form.Label>
+                                    <Form.Control value='ddd'
+                                        onChange={(e) => this.setFieldValue(e, 'position')}
+                                    />
+                                    <Form.Text id="field-position" />
+                                </div>
+                                <div>
+                                    <Form.Label>Supervisor</Form.Label>
+                                    <Form.Control value='ddd'
+                                    />
+                                    <Form.Text id="field-supervisor" />
+                                </div>
+                            </div>
+                        )}    
+                        {dialogType !== 'add' && dialogType !== 'del' && (
+                            <div>
+                                <Form.Label>Created</Form.Label>
+                                <Form.Control value='ddd' readOnly/>
+                                <Form.Text id="field-created" />
+                            </div>  
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={this.closeDialog}>
+                            Close
+                        </Button>
+                        {(dialogType === 'add' || dialogType === 'employee') && (
+                            <Button variant="primary" onClick={this.closeDialog}>
+                                Save Changes
+                            </Button>
+                        )}
+                        {dialogType === 'del' && (
+                            <Button variant="primary" onClick={this.closeDialog}>
+                                Remove
+                            </Button>
+                        )}
+                    </Modal.Footer>
+                </Modal>
+            
+            </>
+        )
+    }
+}
+
+export default EmployeeComponent
+
+
+
+/*
+            <>
+            <Pagination>
+                <Pagination.First onClick={() =>this.setActivePage(0)} />
+                <Pagination.Prev onClick={() => this.setActivePage(activePage - 1)}/>
+                {activePage - 2 > 0 &&(
+                    <Pagination.Ellipsis />    
+                )}
+                {this.prePageN() >= 0 &&(
+                    <Pagination.Item>{this.prePageN()}</Pagination.Item>
+                )}
+                <Pagination.Item active>{activePage}</Pagination.Item>
+                {this.nxtPageN() <= this.maxPage() &&(
+                    <Pagination.Item>{this.nxtPageN()}</Pagination.Item>
+                )}
+                {activePage + 2 < this.maxPage() &&(
+                    <Pagination.Ellipsis />    
+                )}
+            
+                <Pagination.Next onClick={() => this.setActivePage(activePage + 1)} />
+                <Pagination.Last onClick={() => this.setActivePage(this.maxPage())} />
+            </Pagination>
+            </>
+            */
+
+
+/*
+<Modal show={showDialog} onHide={this.closeDialog} className="overlay">
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            {dialogType === 'supervisor' && (
+                                <p>Supervisor of
+                                <p>{selectedEmp["first name"]} {selectedEmp["last name"]}</p></p>
+                            )}
+                            {dialogType === 'employee' && (
+                                <p>Information about Employye</p>
+                            )}
+                            {dialogType === 'add' && (
+                                <p>Add new Employee</p>
+                            )}
+                            {dialogType === 'del' && (
+                                <p>Delete selected Employees</p>
+                            )}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {dialogType === 'del' && (
+                            <p>Do you want delete users?</p>
+                        )}
+
+
+                        {dialogType !== 'add' && dialogType !== 'del' && (
+                            <div>
+                                <Form.Label>ID</Form.Label>
+                                <Form.Control value={selectedEmp["id"]} readOnly />
+                                <Form.Text id="field-id" />
+                            </div>  
+                        )}
+                        {dialogType !== 'del' && (
+                            <div>
+                                <div>
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control value={selectedEmp["first name"]}
+                                        onChange={(e) => this.setFieldValue(e, 'firstName')}
+                                    />
+                                    <Form.Text id="field-first-name" />
+                                </div>
+                                <div>
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control value={selectedEmp["last name"]}
+                                        onChange={(e) => this.setFieldValue(e, 'lastName')}
+                                    />
+                                    <Form.Text id="field-last-name" />
+                                </div>
+                                <div>
+                                    <Form.Label>Position</Form.Label>
+                                    <Form.Control value={selectedEmp["position"]}
+                                        onChange={(e) => this.setFieldValue(e, 'position')}
+                                    />
+                                    <Form.Text id="field-position" />
+                                </div>
+                                <div>
+                                    <Form.Label>Supervisor</Form.Label>
+                                    <Form.Control value={this.getSupFullName()}
+                                    />
+                                    <Form.Text id="field-supervisor" />
+                                </div>
+                            </div>
+                        )}    
+                        {dialogType !== 'add' && dialogType !== 'del' && (
+                            <div>
+                                <Form.Label>Created</Form.Label>
+                                <Form.Control value={selectedEmp["created date"]} readOnly/>
+                                <Form.Text id="field-created" />
+                            </div>  
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={this.closeDialog}>
+                            Close
+                        </Button>
+                        {dialogType === 'add' || dialogType === 'employee' && (
+                            <Button variant="primary" onClick={this.closeDialog}>
+                                Save Changes
+                            </Button>
+                        )}
+                        {dialogType === 'del' && (
+                            <Button variant="primary" onClick={this.closeDialog}>
+                                Remove
+                            </Button>
+                        )}
+                    </Modal.Footer>
+                </Modal>
+*/                            
+
+/* LAST CARD
+
+<Card style={{ 
+                        width: '40rem', 
+                        textAlign: 'left', 
+                        cursor: 'pointer' }}
+
+                        id={this.getCardID(emp["id"])}
+                    >
+                        <Card.Body>    
+                        <Card.Title >{emp["first name"]} {emp["last name"]} ({emp["id"]})</Card.Title>
+                        <Card.Text >
+                            <div>Position: {emp["position"]}<p>Supervisor: </p></div>
+                        </Card.Text>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }} >
+                                <Button variant="primary" 
+                                    onClick={() => this.showDialog('employee', emp["id"])}>Employee info</Button>
+                                    {(emp["supervisor"] !== undefined || emp["supervisor"] >= 0) && (
+                                        <Button variant="secondary" onClick={() => this.showDialog('employee', emp["supervisor"])}>Supervisor info</Button>
+                                    )}
+                            </div>            
+                        </Card.Body>
+                    </Card>
+                ))}
+
+*/

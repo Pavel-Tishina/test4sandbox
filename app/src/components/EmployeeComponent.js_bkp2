@@ -29,8 +29,7 @@ class EmployeeComponent extends React.Component {
             reqPostKeys     : ['firstName','lastName','position','supervisor'],
             showAlert       : false,
             msgAlert        : '',
-            typeAlert       : '',
-            possibleSupervisors : []
+            typeAlert       : ''
         }
 
         this.setActivePage = this.setActivePage.bind(this);
@@ -54,11 +53,8 @@ class EmployeeComponent extends React.Component {
         this.getFromSelectEmp = this.getFromSelectEmp.bind(this);
 
         this.saveChanges = this.saveChanges.bind(this);
-        this.removeEmployee = this.removeEmployee.bind(this);
         this.getChangesJSON = this.getChangesJSON.bind(this);
         this.getNewEmployeeJSON = this.getNewEmployeeJSON.bind(this);
-
-        this.getChildrenTitle = this.getChildrenTitle.bind(this);
     }
 
     componentDidMount() {
@@ -136,8 +132,7 @@ class EmployeeComponent extends React.Component {
     undefSelectedEmployeeData() {
         this.setState({
             employees2Del   : [],
-            selectedEmp     : undefined,
-            possibleSupervisors: []
+            selectedEmp     : undefined
         });
     }
 
@@ -162,35 +157,11 @@ class EmployeeComponent extends React.Component {
                 selectedEmp["position"] = event.target.value;
                 console.log('OLD position' + selectedEmp["position"]);
               }
-              else if (fieldName === 'supervisor') {
-                console.log('OLD supervisor ' + selectedEmp["supervisor"]);
-
-                console.log("VVVVV = " + event.target.value);
-                console.log("VVVVV = " + event.target.value);
-                console.dir(event.target.children[event.target.value]);
-
-                
-                selectedEmp["supervisor"] = event.target.value;
-                selectedEmp["supervisorFullName"] = this.getChildrenTitle(event.target.children, event.target.value);
-                console.log('OLD supervisor ' + selectedEmp["supervisor"]);
-              }
               
             
             this.setState({ selectedEmp : selectedEmp });  
         }
-    };
-
-    getChildrenTitle(childrenCollection, id) {
-        for (let i = 0; i < childrenCollection.length; i++) {
-            const option = childrenCollection[i];
-
-            if (option.innerText.endsWith('(' + id + ')')) {
-                return option.innerText;
-            }
-        }
-
-        return '';
-    }
+      };
 
     getCardID(id) {
         return 'card-' + id;
@@ -203,52 +174,26 @@ class EmployeeComponent extends React.Component {
         if (dialogType === 'employee') {
             EmployeeService.putEmployee(this.getChangesJSON(selectedEmp)).then((response) => {
                 this.showAlert('success', 'Changes was saved!');
-    
+
                 window.setTimeout(()=>{
                     this.closeDialog();
                     window.location.reload();
-                    },1500)
-                })
-                .catch((error) => {
-                    console.dir('HHHHHSSS = ' +  error.response.data.errors);
-                    this.showAlert('danger', error.response.data.errors);
-                  });
-        }
-        else if (dialogType === 'add') {
-            EmployeeService.postEmployee(this.getNewEmployeeJSON(selectedEmp)).then((response) => {
-                this.showAlert('success', 'Changes was saved!');
-    
-                window.setTimeout(()=>{
-                    this.closeDialog();
-                    window.location.reload();
-                    },1500)
-                })
-                .catch((error) => {
-                    console.dir('HHHHHSSS = ' +  error.response.data.errors);
-                    this.showAlert('danger', error.response.data.errors);
-                  });
-        }
-        
-    
-    };
-
-    removeEmployee = () => {
-        const { selectedEmp, dialogType, employees2Del } = this.state;
-        console.dir('REMOOOOOVE = ' + selectedEmp);
-
-        EmployeeService.delEmployeeById(selectedEmp["id"]).then((response) => {
-            this.showAlert('success', 'Employee was removed!');
-
-            window.setTimeout(()=>{
-                this.closeDialog();
-                window.location.reload();
-                },1500)
-            })
-            .catch((error) => {
+                  },1500)
+              })
+              .catch((error) => {
                 console.dir('HHHHHSSS = ' +  error.response.data.errors);
                 this.showAlert('danger', error.response.data.errors);
               });
-    }
+        }
+        else if (dialogType === 'new') {
+            //EmployeeService.postEmployee(this.getNewEmployeeJSON(selectedEmp));
+        }
+        else if (dialogType === 'del') {
+            //EmployeeService.delEmployeeById(employees2Del.toString());
+        }
+        
+
+    };
 
     getChangesJSON(selectedEmp) {
         const { reqPutKeys } = this.state;
@@ -275,17 +220,8 @@ class EmployeeComponent extends React.Component {
     };  
 
     showDialog = (type, id) => {
+        //this.setState({ showDialog: true, dialogType: type });
         this.undefSelectedEmployeeData();
-
-
-        EmployeeService.getPossibleSupervisors(id).then((response) => {
-            this.setState({ possibleSupervisors : response.data.result });            
-            })
-            .catch((error) => {
-                console.dir('HHHHHSSS = ' +  error.response.data.errors);
-                this.showAlert('danger', error.response.data.errors);
-              });
-
     
         console.log('ids instance ' + (typeof id) + "\t" + id);
     
@@ -296,16 +232,9 @@ class EmployeeComponent extends React.Component {
             console.log('selectedEmp11 === ' + selectedEmp2Store["id"]);
 
             this.setState({ selectedEmp: selectedEmp2Store });
-        } else if (id === null) {
-            console.log('IS NULL ' + id);
-
-            const selectedEmp2Store = { ...this.state.employees[0]};
-            selectedEmp2Store["firstName"] = "";
-            selectedEmp2Store["lastName"] = "";
-            selectedEmp2Store["position"] = "";
-            selectedEmp2Store["supervisor"] = "";
-            
-            this.setState({ selectedEmp : selectedEmp2Store });
+        } else if (Array.isArray(id)) {
+            console.log('ids === ' + id);
+            this.setState({ employees2Del : id });
         }
         const { selectedEmp } = this.state;
 
@@ -334,12 +263,11 @@ class EmployeeComponent extends React.Component {
             : ''
     }
 
-
     // TODO
     // dialog show and hide!
 
     render (){
-        const { activePage, totalN, limitN, employees, showDialog, dialogType, showAlert, msgAlert, typeAlert, possibleSupervisors, selectedEmp } = this.state;
+        const { activePage, totalN, limitN, employees, showDialog, dialogType, showAlert, msgAlert, typeAlert } = this.state;
 
         return (
             <>
@@ -380,6 +308,7 @@ class EmployeeComponent extends React.Component {
                     </Pagination>
 
                     <Button variant="primary" onClick={() => this.showDialog('add', null)}>Add</Button>
+                    <Button variant="secondary" onClick={() => this.showDialog('del', null)}>Del</Button>    
                 </div>
 
 
@@ -440,22 +369,14 @@ class EmployeeComponent extends React.Component {
                                 </div>
                                 <div>
                                     <Form.Label>Supervisor</Form.Label>
-                                    <Form.Select aria-label="Default select example" onChange={(e) => this.setFieldValue(e, 'supervisor')} 
-                                        value={this.getFromSelectEmp("supervisor")}
-                                    >
-                                        <option value=""></option>
-                                        {(this.getFromSelectEmp("supervisor") !== '' || this.getFromSelectEmp("supervisor") > 0) && (
-                                            <option value={this.getFromSelectEmp("supervisor")} active>{this.getFromSelectEmp("supervisorFullName")}</option>
-                                        )}
-                                        {possibleSupervisors.map(sv => (
-                                            <option value={sv["id"]}>{sv["fullName"]}</option>
-                                        ))}
-                                    </Form.Select>
-                                </div> 
+                                    <Form.Control value={this.getFromSelectEmp("supervisorFullName")}
+                                    />
+                                    <Form.Text id="field-supervisor" />
+                                </div>
                             </div>
                         )}    
                         {dialogType !== 'add' && dialogType !== 'del' && (
-                            <div>    
+                            <div>
                                 <Form.Label>Created</Form.Label>
                                 <Form.Control value={this.getFromSelectEmp("created")} readOnly/>
                                 <Form.Text id="field-created" />
@@ -463,23 +384,19 @@ class EmployeeComponent extends React.Component {
                         )}
                     </Modal.Body>
                     <Modal.Footer>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }} >
-                            <Button variant="secondary" onClick={this.closeDialog}>
-                                Close
+                        <Button variant="secondary" onClick={this.closeDialog}>
+                            Close
+                        </Button>
+                        {(dialogType === 'add' || dialogType === 'employee') && (
+                            <Button variant="primary" onClick={this.saveChanges}>
+                                Save Changes
                             </Button>
-                            {(dialogType === 'add' || dialogType === 'employee') && (
-                                
-                                    <Button variant="primary" onClick={this.saveChanges}>
-                                        Save Changes
-                                    </Button>
-                            )}
-                            {(dialogType === 'employee') && (        
-                                    <Button variant="danger" onClick={this.removeEmployee}>
-                                        Remove
-                                    </Button>
-                                
-                            )}
-                        </div>
+                        )}
+                        {dialogType === 'del' && (
+                            <Button variant="primary" onClick={this.closeDialog}>
+                                Remove
+                            </Button>
+                        )}
                     </Modal.Footer>
                 </Modal>
             </>

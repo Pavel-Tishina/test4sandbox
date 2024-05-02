@@ -39,7 +39,7 @@ class EmployeeService {
     
 
     delEmployeeById(id) {
-        return axios.del(EMPLOYEE_REST_API_URL + '?id=' + id, {
+        return axios.delete(EMPLOYEE_REST_API_URL + '?id=' + id, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET,PUT,PUSH,DELETE',
@@ -55,7 +55,7 @@ class EmployeeService {
         return axios.get(EMPLOYEE_REST_API_URL + '/list');
     }
     */
-//'Access-Control-Allow-Origin'
+
     getEmployeePage(p, lim) {
         return axios.get(EMPLOYEE_REST_API_URL + '/page?p=' + p + '&lim=' + lim, {
             headers: {
@@ -69,6 +69,17 @@ class EmployeeService {
 
     getTotal() {
         return axios.get(EMPLOYEE_REST_API_URL + '/total', {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET,PUT,PUSH,DELETE',
+                'Accept': '*/*',
+                'Referer': "http://localhost:3000"
+            }
+        });
+    }
+
+    getPossibleSupervisors(id) {
+        return axios.get(EMPLOYEE_REST_API_URL + '/supervisors?id=' + id, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET,PUT,PUSH,DELETE',
