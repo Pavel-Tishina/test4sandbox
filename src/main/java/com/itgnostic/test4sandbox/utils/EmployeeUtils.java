@@ -5,8 +5,6 @@ import com.itgnostic.test4sandbox.service.EmployeeService;
 import com.itgnostic.test4sandbox.service.OperationResult;
 import com.itgnostic.test4sandbox.web.api.rest.model.RespEmployeeModel;
 import org.apache.logging.log4j.util.Strings;
-import org.h2.util.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 import java.util.Set;

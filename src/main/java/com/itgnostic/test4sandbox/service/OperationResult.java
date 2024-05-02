@@ -72,30 +72,9 @@ public class OperationResult {
 
     public String getErrorDetails() {
         return hasErrors()
-                ? "Result has " + errorList.size() + " errors:" + String.join("\n\t", errorList)
+                ? "Result has " + errorList.size() + " errors: " + String.join("\n\t", errorList)
                 : "No errors";
     }
-
-    /*
-    public List<Map<String, Object>> getResultsAsList() {
-        return resultList.stream()
-                .filter(EmployeeUtils::allReqFieldsOk)
-                .flatMap(e -> {
-                    Map<String, Object> map = Map.of(
-                            "id", e.getId(),
-                            "first name", e.getFirstName(),
-                            "last name", e.getLastName(),
-                            "position", Strings.nullToEmpty(e.getPosition()),
-                            "supervisor", e.getSupervisor() == null ? "" : e.getSupervisor(),
-                            "subordinates", e.getSubordinates(),
-                            "created date", DT.format(e.getCreated())
-                    );
-                    return Stream.of(map);
-                })
-                .collect(Collectors.toList());
-    }
-
-     */
 
     public List<Map<String, Object>> getResultsAsList() {
         return resultList.stream()

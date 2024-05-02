@@ -18,8 +18,7 @@ public class Test4sandboxApplication {
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-		emf.setEntityManagerFactoryInterface(EntityManagerFactory.class); // Set to use javax.persistence.EntityManagerFactory
-		// Other configurations for your EntityManagerFactory
+		emf.setEntityManagerFactoryInterface(EntityManagerFactory.class);
 		return emf;
 	}
 
@@ -32,6 +31,8 @@ public class Test4sandboxApplication {
 			}
 		};
 	}
+
+
 
 
 }
