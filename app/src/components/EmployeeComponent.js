@@ -53,8 +53,9 @@ class EmployeeComponent extends React.Component {
     }
 
     componentDidMount() {
-        // get total elements count, and 
-        if (this.state.totalN === undefined || this.state.activePage === undefined) {
+        const { activePage, totalN, limitN } = this.state;
+        
+        if (totalN === undefined || activePage === undefined) {
             EmployeeService.getTotal().then((response) => {
                 console.dir(response.data.total);
                 this.setState({ totalN: response.data.total });
@@ -66,8 +67,6 @@ class EmployeeComponent extends React.Component {
                 this.setState({ activePage: 0 });
             });
         }
-        
-        const { activePage, limitN } = this.state;
 
         const p = activePage !== undefined && activePage >= 0
             ? activePage
