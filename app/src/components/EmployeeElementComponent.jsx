@@ -3,8 +3,6 @@ import React, {useState} from "react";
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
-import CommonDialog from './CommonDialog';
-import TestDialog from './TestDialog';
 
 
 class EmployeeElementComponent extends React.Component {

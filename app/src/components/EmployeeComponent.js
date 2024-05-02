@@ -7,41 +7,32 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
-//import EmployeeElementComponent from './EmployeeElementComponent'
-
-//import { isObjectLiteralElementLike } from "typescript";
 
 class EmployeeComponent extends React.Component {
-    
 
     constructor(props) {
         super(props)
         this.state = {
-            activePage      : props.activePage || undefined,
-            totalN          : undefined,
-            limitN          : 5,
-            employees       : [],
-            dialogType      : undefined,
-            showDialog      : false,
-            employees2Del   : [],
-            selectedEmp     : undefined,
-            reqPutKeys      : ['id','firstName','lastName','position','supervisor'],
-            reqPostKeys     : ['firstName','lastName','position','supervisor'],
-            showAlert       : false,
-            msgAlert        : '',
-            typeAlert       : '',
+            activePage          : props.activePage || undefined,
+            totalN              : undefined,
+            limitN              : 5,
+            employees           : [],
+            dialogType          : undefined,
+            showDialog          : false,
+            selectedEmp         : undefined,
+            reqPutKeys          : ['id','firstName','lastName','position','supervisor'],
+            reqPostKeys         : ['firstName','lastName','position','supervisor'],
+            showAlert           : false,
+            msgAlert            : '',
+            typeAlert           : '',
             possibleSupervisors : []
         }
 
         this.setActivePage = this.setActivePage.bind(this);
-        this.prePageN = this.prePageN.bind(this);
-        this.nxtPageN = this.nxtPageN.bind(this);
         this.maxPage = this.maxPage.bind(this);
 
         this.undefSelectedEmployeeData = this.undefSelectedEmployeeData.bind(this);
-        //this.getSelectedEmployeeData = this.getSelectedEmployeeData.bind(this);
         this.setFieldValue = this.setFieldValue.bind(this);
-        //this.getSupFullName = this.getSupFullName.bind(this);
 
         this.closeAlert = this.closeAlert.bind(this);
         this.showAlert = this.showAlert.bind(this);
@@ -82,7 +73,6 @@ class EmployeeComponent extends React.Component {
             ? activePage
             : 0;
 
-
         EmployeeService.getEmployeePage(p, limitN).then((response) => {
             console.log(response.data);
             this.setState({ employees: response.data.result})
@@ -91,14 +81,6 @@ class EmployeeComponent extends React.Component {
             this.setState({ employees: []})
           });
 
-    }
-
-    prePageN() {
-        return this.state.activePage - 1;
-    }
-
-    nxtPageN() {
-        return this.state.activePage + 1;
     }
 
     maxPage() {
@@ -119,25 +101,11 @@ class EmployeeComponent extends React.Component {
         this.componentDidMount();
     }
 
-    fetchEmployeeData() {
-        const { activePage, limitN } = this.state;
-        EmployeeService.getEmployeePage(activePage, limitN)
-            .then((response) => {
-                //console.log(response.data);
-                this.setState({ employees: response.data.result });
-            })
-            .catch((error) => {
-                console.log(error);
-                this.setState({ employees: [] });
-            });
-    }
-
 
     undefSelectedEmployeeData() {
         this.setState({
-            employees2Del   : [],
-            selectedEmp     : undefined,
-            possibleSupervisors: []
+            selectedEmp         : undefined,
+            possibleSupervisors : []
         });
     }
 
@@ -148,34 +116,19 @@ class EmployeeComponent extends React.Component {
 
         if (selectedEmp !== null && selectedEmp !== undefined) {
             if (fieldName === 'firstName') {
-                console.log('OLD first name' + selectedEmp["firstName"]);
                 selectedEmp["firstName"] = event.target.value;
-                console.log('NEW first name' + selectedEmp["firstName"]);
               } 
               else if (fieldName === 'lastName') {
-                console.log('OLD last name' + selectedEmp["lastName"]);
                 selectedEmp["lastName"] = event.target.value;
-                console.log('OLD last name' + selectedEmp["lastName"]);
               } 
               else if (fieldName === 'position') {
-                console.log('OLD position' + selectedEmp["position"]);
                 selectedEmp["position"] = event.target.value;
-                console.log('OLD position' + selectedEmp["position"]);
               }
               else if (fieldName === 'supervisor') {
-                console.log('OLD supervisor ' + selectedEmp["supervisor"]);
-
-                console.log("VVVVV = " + event.target.value);
-                console.log("VVVVV = " + event.target.value);
-                console.dir(event.target.children[event.target.value]);
-
-                
                 selectedEmp["supervisor"] = event.target.value;
                 selectedEmp["supervisorFullName"] = this.getChildrenTitle(event.target.children, event.target.value);
-                console.log('OLD supervisor ' + selectedEmp["supervisor"]);
               }
-              
-            
+
             this.setState({ selectedEmp : selectedEmp });  
         }
     };
@@ -197,7 +150,7 @@ class EmployeeComponent extends React.Component {
     }
 
     saveChanges = () => {
-        const { selectedEmp, dialogType, employees2Del } = this.state;
+        const { selectedEmp, dialogType } = this.state;
         console.dir(selectedEmp);
 
         if (dialogType === 'employee') {
@@ -228,12 +181,10 @@ class EmployeeComponent extends React.Component {
                     this.showAlert('danger', error.response.data.errors);
                   });
         }
-        
-    
     };
 
     removeEmployee = () => {
-        const { selectedEmp, dialogType, employees2Del } = this.state;
+        const { selectedEmp } = this.state;
         console.dir('REMOOOOOVE = ' + selectedEmp);
 
         EmployeeService.delEmployeeById(selectedEmp["id"]).then((response) => {
@@ -335,11 +286,8 @@ class EmployeeComponent extends React.Component {
     }
 
 
-    // TODO
-    // dialog show and hide!
-
     render (){
-        const { activePage, totalN, limitN, employees, showDialog, dialogType, showAlert, msgAlert, typeAlert, possibleSupervisors, selectedEmp } = this.state;
+        const { activePage, employees, showDialog, dialogType, showAlert, msgAlert, typeAlert, possibleSupervisors } = this.state;
 
         return (
             <>

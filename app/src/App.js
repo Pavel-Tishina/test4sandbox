@@ -10,10 +10,6 @@ function App() {
   return (
     <div className="App">
       <EmployeeComponent/>
-
-      
-
-
     </div>
   );
 }
