@@ -1,7 +1,9 @@
 package com.itgnostic.test4sandbox.service;
 
+import com.google.common.base.Strings;
 import com.itgnostic.test4sandbox.db.entity.EmployeeEntity;
 import com.itgnostic.test4sandbox.errors.DbErrors;
+import com.itgnostic.test4sandbox.utils.EmployeeUtils;
 import lombok.Getter;
 
 import java.util.*;
@@ -74,12 +76,14 @@ public class OperationResult {
     }
 
     public List<Map<String, Object>> getResultsAsList() {
-        return resultList.stream().flatMap(e -> {
+        return resultList.stream()
+                .filter(EmployeeUtils::allReqFieldsOk)
+                .flatMap(e -> {
                     Map<String, Object> map = Map.of(
                             "id", e.getId(),
                             "first name", e.getFirstName(),
                             "last name", e.getLastName(),
-                            "position", e.getPosition(),
+                            "position", Strings.nullToEmpty(e.getPosition()),
                             "supervisor", e.getSupervisor() == null ? "" : e.getSupervisor(),
                             "subordinates", e.getSubordinates(),
                             "created date", DT.format(e.getCreated())
