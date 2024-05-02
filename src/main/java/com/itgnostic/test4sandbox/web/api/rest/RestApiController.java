@@ -151,10 +151,12 @@ public class RestApiController {
         long[] _id = RestApiUtils.getLongParamsAsArray(id, true);
 
         OperationResult result = employeeService.del(_id[0]);
+        if (result.hasErrors())
+            errors.add(result.getErrorDetails());
 
         return result.isSuccess()
                 ? ResponseEntity.ok(new JSONObject().put("result", "User with id '%d' was deleted".formatted(_id[0])).toString())
-                : badResponse(HttpStatus.INTERNAL_SERVER_ERROR, result);
+                : badResponse(HttpStatus.NOT_FOUND, result);
     }
 
     @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
@@ -222,6 +224,19 @@ public class RestApiController {
         Long result = employeeService.getTotal();
         return result != null && result >= 0
                 ? ResponseEntity.ok().body(new JSONObject().put("total", result).toString())
+                : badResponse(HttpStatus.NOT_FOUND);
+    }
+
+    @CrossOrigin(origins = "https://localhost:3000", maxAge = 3600)
+    @RequestMapping(value = "/employee/supervisors", method = RequestMethod.GET)
+    public ResponseEntity<String> getPossibleSupervisors(@RequestParam(value = "id") String id) {
+        Long _id = RestApiUtils.parseLong(id);
+
+        errors = new ArrayList<>();
+        OperationResult result = employeeService.getPossibleSupervisors(_id);
+
+        return result.isSuccess()
+                ? okResponse(result)
                 : badResponse(HttpStatus.NOT_FOUND);
     }
 

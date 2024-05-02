@@ -67,6 +67,22 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
+    public List<EmployeeEntity> getPossibleSupervisors(Long subId) {
+        /*
+        * RIGHT Filter subId Query
+        String sql = subId == null || subId <= 0
+                ? "SELECT e FROM %s e".formatted(entityName)
+                : "SELECT e FROM %s e WHERE e.id != %d AND %d NOT MEMBER OF e.subordinates"
+                    .formatted(entityName, subId, subId);
+
+        return executeQuery(sql);
+
+         */
+
+        return executeQuery("SELECT e FROM %s e".formatted(entityName));
+    }
+
+    @Override
     @Transactional
     public List<EmployeeEntity> getList(long[] ids) {
         return getList(LongStream.of(ids).boxed().collect(Collectors.toSet()));

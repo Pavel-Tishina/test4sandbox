@@ -219,6 +219,18 @@ public class EmployeeService {
         return employeeDbService.getTotal();
     }
 
+    public OperationResult getPossibleSupervisors(Long subId) {
+        List<EmployeeEntity> supervisors = employeeDbService.getPossibleSupervisors(subId)
+                .stream()
+                .filter(e -> !Objects.equals(e.getId(), subId))
+                .filter(e -> !e.getSubordinates().contains(subId)).collect(Collectors.toList());
+
+        OperationResult out = new OperationResult();
+        out.addResult(supervisors, this);
+
+        return out;
+    }
+
     // TODO : if employee remove - need delete all supervisor and subordinates
 
 

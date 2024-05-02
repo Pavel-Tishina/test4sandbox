@@ -11,6 +11,8 @@ public interface EmployeeDbService {
     Long add(EmployeeEntity e);
     EmployeeEntity get(long id);
     List<EmployeeEntity> get(long page, long limit);
+    List<EmployeeEntity> getPossibleSupervisors(Long subId);
+
     List<EmployeeEntity> getList(long[] ids);
     List<EmployeeEntity> getList(Collection<Long> ids);
 
