@@ -1,6 +1,7 @@
 package com.itgnostic.test4sandbox.utils;
 
 import com.itgnostic.test4sandbox.db.entity.EmployeeEntity;
+import org.apache.logging.log4j.util.Strings;
 
 import java.util.Objects;
 import java.util.Set;
@@ -43,6 +44,12 @@ public class EmployeeUtils {
 
     public static String getFullName(EmployeeEntity e) {
         return "%s %s (%d)".formatted(e.getFirstName(), e.getLastName(), e.getId());
+    }
+
+    public static boolean allReqFieldsOk(EmployeeEntity e) {
+        return e != null && e.getId() != null && e.getId() > 0
+                && Strings.isNotBlank(e.getFirstName()) && Strings.isNotBlank(e.getLastName())
+                && e.getCreated() != null;
     }
 
     //TODO getting map for UI-elements context
