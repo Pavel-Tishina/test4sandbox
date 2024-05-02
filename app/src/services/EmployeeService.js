@@ -15,20 +15,38 @@ class EmployeeService {
         });
     }
 
-    /*
-    //TODO
-    putEmployeeById() {
-        return axios.put(EMPLOYEE_REST_API_URL);
+    putEmployee(body) {
+        return axios.put(EMPLOYEE_REST_API_URL, body, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET,PUT,PUSH,DELETE',
+                'Accept': '*/*',
+                'Referer': "http://localhost:3000"
+            }
+        });
     }
 
-    //TODO
-    postEmployeeById() {
-        return axios.post(EMPLOYEE_REST_API_URL);
+    postEmployee(body) {
+        return axios.post(EMPLOYEE_REST_API_URL, body, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET,PUT,PUSH,DELETE',
+                'Accept': '*/*',
+                'Referer': "http://localhost:3000"
+            }
+        });
     }
-    */
+    
 
     delEmployeeById(id) {
-        return axios.del(EMPLOYEE_REST_API_URL + '?id=' + id);
+        return axios.del(EMPLOYEE_REST_API_URL + '?id=' + id, {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET,PUT,PUSH,DELETE',
+                'Accept': '*/*',
+                'Referer': "http://localhost:3000"
+            }
+        });
     }
 
     /*
