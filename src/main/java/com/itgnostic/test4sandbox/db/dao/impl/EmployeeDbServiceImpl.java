@@ -46,6 +46,7 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
+    @Transactional
     public EmployeeEntity get(long id) {
         if (!session.isOpen())
             return null;
@@ -54,6 +55,7 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
+    @Transactional
     public List<EmployeeEntity> get(long page, long limit) {
         String jpql = "FROM " + entityName;
 
@@ -65,11 +67,13 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
+    @Transactional
     public List<EmployeeEntity> getList(long[] ids) {
         return getList(LongStream.of(ids).boxed().collect(Collectors.toSet()));
     }
 
     @Override
+    @Transactional
     public List<EmployeeEntity> getList(Collection<Long> ids) {
         if (!session.isOpen())
             return null;
@@ -78,7 +82,7 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
-    //@Transactional
+    @Transactional
     public EmployeeEntity modify(EmployeeEntity e) {
         if (!session.isOpen() || e == null || e.getId() == null)
             return null;
@@ -131,11 +135,13 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
+    @Transactional
     public Boolean del(int id) {
         return del(get(id));
     }
 
     @Override
+    @Transactional
     public Long getLastIndex() {
         if (!session.isOpen())
             return null;
@@ -149,11 +155,13 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
     }
 
     @Override
+    @Transactional
     public Long getTotal() {
         Query<Long> query = session.createQuery("select count(*) from " + entityName, Long.class);
         return query.getSingleResult();
     }
 
+    @Transactional
     protected List<EmployeeEntity> executeQuery(String sql, String param, Object val) {
         if (!session.isOpen())
             return null;
@@ -164,6 +172,7 @@ public class EmployeeDbServiceImpl implements EmployeeDbService {
         return query.getResultList();
     }
 
+    @Transactional
     protected List<EmployeeEntity> executeQuery(String sql) {
         if (!session.isOpen())
             return null;

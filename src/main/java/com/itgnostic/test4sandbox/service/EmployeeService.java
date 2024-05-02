@@ -45,7 +45,7 @@ public class EmployeeService {
         if (newId == null)
             out.addError(DB_SAVE_NEW_ERROR);
         else
-            out.addResult(employeeDbService.get(newId));
+            out.addResult(employeeDbService.get(newId), this);
 
         if (newId != null && supervisor != null)
             addOrRemoveSubForSupervisor(supervisor, newId, false);
@@ -53,9 +53,13 @@ public class EmployeeService {
         return out;
     }
 
-    public OperationResult get(long id) {
+    public OperationResult get(Long id) {
         OperationResult out = new OperationResult();
-        if (id < 1) {
+        if (id == null) {
+            out.addError(ValueErrors.ID_IS_NULL.getErrorText());
+            return out;
+        }
+        else if (id < 1) {
             out.addError(ValueErrors.ID_IS_ZERO_OR_MINUS.getErrorText());
             return out;
         }
@@ -64,7 +68,7 @@ public class EmployeeService {
         if (e == null)
             out.addError(EMPLOYEE_NOT_FOUND.getErrorText().formatted(id));
         else
-            out.addResult(e);
+            out.addResult(e, this);
 
         return out;
     }
@@ -86,7 +90,7 @@ public class EmployeeService {
         else if (eList.isEmpty())
             out.addError(EMPLOYEE_GET_LIMITS.getErrorText().formatted(page, lim));
         else
-            out.addResult(eList);
+            out.addResult(eList, this);
 
         return out;
     }
@@ -142,7 +146,7 @@ public class EmployeeService {
                             editEntity.clone(), newFirstName, newLastName, newPosition, newSupervisor, newSubordinates));
 
             if (resultEntity != null) {
-                out.addResult(resultEntity);
+                out.addResult(resultEntity, this);
 
                 if (!Objects.equals(oldSupervisorId, resultEntity.getSupervisor())) {
                     if (oldSupervisorId != null)
@@ -162,7 +166,9 @@ public class EmployeeService {
             out.addResult(
                     employeeDbService.modify(
                             EmployeeUtils.updateValues(
-                                    editEntity.clone(), newFirstName, newLastName, newPosition, newSupervisor, newSubordinates)));
+                                    editEntity.clone(), newFirstName, newLastName, newPosition, newSupervisor, newSubordinates)),
+                   this
+            );
         }
         else
             out.addError(NO_CHANGES);
@@ -195,7 +201,7 @@ public class EmployeeService {
                                 .collect(Collectors.joining(","))));
         }
         else
-            out.addResult(findEntities);
+            out.addResult(findEntities, this);
 
 
         if (findEntities != null) {
